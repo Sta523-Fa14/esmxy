@@ -1,0 +1,15 @@
+*.Rdata
+*.Rproj.user
+*.Rproj
+*.Rapp.history
+*.DS_Store
+*.Rhistory
+*.html
+*.DS_Store
+*.csv
+*.xlsx
+.Rproj.user
+*.html
+*.txt
+
+Cache/

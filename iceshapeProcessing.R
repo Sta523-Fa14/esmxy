@@ -4,15 +4,8 @@ library(rgeos)
 library(rgdal)
 library(maptools)
 
-urls = seaiceeurls(pole = "N")
-urls=urls[-which(grepl("198801",urls))]
-urls=urls[-which(grepl("198712",urls))]
-url_adj_id=which(grepl("2013010",urls))
-urls[url_adj_id]=gsub("2013010","201310",urls[url_adj_id])
-url_adj_id=which(grepl("2013011",urls))
-urls[url_adj_id]=gsub("2013011","201311",urls[url_adj_id])
-url_adj_id=which(grepl("2013012",urls))
-urls[url_adj_id]=gsub("2013012","201312",urls[url_adj_id])
+urls = seaiceeurls(mo="Sep", pole = "N")
+
 
 dir.create("Cache")
 dir.create("Cache/Shapefiles")
@@ -36,11 +29,6 @@ get_areas = function(p)
   sapply(p@polygons, function(x) x@area)
 }
 
-folderNameList=folderNameList[-grep("198408",folderNameList)]
-folderNameList=folderNameList[-grep("198603",folderNameList)]
-folderNameList=folderNameList[-grep("199504",folderNameList)]
-folderNameList=folderNameList[-grep("199803",folderNameList)]
-folderNameList=folderNameList[-grep("201304",folderNameList)]
 areaData=data.frame(RecordDate=character(),IceArea=double())
 for(i in 1:length(folderNameList)){
   current_shape=readOGR(paste0("Cache/Shapefiles/",folderNameList[i]),folderNameList[i])

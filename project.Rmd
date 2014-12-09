@@ -1,0 +1,178 @@
+---
+output: html_document
+---
+# Visualization of Raw Data
+
+## 1) Arctic Sea Ice Extent Trends: 1979-2013
+
+Based on the monthly Arctic Sea Ice Extent data offered by National Snow and Ice Data Center(NSIDC), we plot
+
+the maximum and minimum arctic sea ice extent for each year, with the trend lines added.  
+
+```{r,echo=FALSE,message=FALSE}
+#download the area data
+link_n <- "http://processtrends.com/files/RClimate_NSIDC_sea_ice_extent.csv"
+sie <- read.table(link_n, skip = 1, sep = ",", header = F,
+                  colClasses = rep("numeric", 5),
+                  comment.char = "#", na.strings = c("NA",-9999),
+                  col.names = c("yr_frac", "yr", "mo", "ext", "area"))
+sie <- sie[,c(1,2,3,4)]
+sie <- subset(sie, sie$yr >1978 & sie$yr < 2014)
+```
+
+
+```{r,echo=FALSE,message=FALSE}
+library(nlme)
+ann_max <- tapply(sie$ext, sie$yr, max, na.rm=T)
+ann_min <- tapply(sie$ext, sie$yr, min, na.rm=T)
+ann_df <- data.frame(seq(1979,2013,1), ann_max, ann_min)
+names(ann_df)<- c("yr", "Max", "Min")
+
+## Calc simple trend line for each series
+glm_max <- gls(Max ~ yr, ann_df)
+glm_min <- gls(Min ~ yr, ann_df)
+
+
+#par(mfrow=c(2,1))
+plot(ann_df$yr, ann_df$Max, type="o", pch=16, col="blue", xlab="Year", ylab="Annual Maximum SIE",axes=T)
+text(1979,14.8, "Maximum Monthly SIE", adj=0,font=2)
+abline(glm_max, col="brown")
+
+
+plot(ann_df$yr, ann_df$Min, type="o", pch=16, col="green",xlab="Year", ylab="Annual Minimum SIE", axes=T)
+text(1979,4.7, "Minimum Monthly SIE",adj=0,font=2)
+abline(glm_min, col="brown")
+```
+
+During the 1979 – 2006 period the maximums and minimums SIE  declined.  The 2007 – 2008 period showed an
+
+increasing trend which resumed its downward slope in 2009 and 2010.
+
+Arctic Sea Ice Extent continued its long-term decline in the 2010 melt season. The annual maximum and minimum
+
+sea ice extent values have declined significantly over the past 35 years with some year to year variation. 
+
+## 2) Map Sea Ice
+
+Using the sea ice shapefile data from r package `rnoaa`, we draw the plot  the sea ice shape in August from
+
+1979 to 2013 
+
+```{r,message=FALSE,echo=FALSE}
+#shapefile
+library(rnoaa)
+library(scales)
+library(ggplot2)
+library(doMC)
+library(plyr)
+urls <- seaiceeurls(mo='Aug', pole='N')
+urls<-urls[1:35]
+registerDoMC(cores=4)
+out <- llply(urls, seaice, .parallel=TRUE)
+#out1<-out[seq(1,35,by=2)]
+#names(out1) <- seq(1979,2013,by=2)
+names(out) <- seq(1979,2013,1)
+df <- ldply(out)
+ggplot(df, aes(long, lat, group=group)) +
+  geom_polygon(fill="steelblue") +
+  theme_ice() +
+  facet_wrap(~ .id)
+```
+
+From the plot, we can find the same trend that sea ice area in Arctic has declined significantly over the past 
+
+35 years with some year to year variation. 
+
+
+# Preliminary Research
+
+Before studying the shapefile data, we begin by analyzing the area data.
+
+We attempt to do regression analysis for sea ice area in each month. Take the sea ice area in August(which the 
+
+temperature is the highest) as an example. 
+
+- First, we construct a new data set for sea ice in August from the original data sets using functions in 
+
+package `dplyr`. The new data set contains variables area, year, temperature, and humidity.
+
+```{r,echo=FALSE,message=FALSE}
+#Construct data sets for january and august sea ice
+#setwd("~/R/Team7/final project")
+load(file="finalData.rda")
+library(dplyr)
+library(stringr)
+newdata<-finalData %>% 
+group_by(RecordDate) %>%
+summarize(n = n(),temperature=mean(Temperature), humidity=mean(RelativeHumidity))
+
+
+jan<-newdata[seq(1,nrow(newdata),by=12),]
+aug<-newdata[seq(8,nrow(newdata),by=12),]
+jan$area<-sie[seq(1,nrow(newdata),by=12),4]
+aug$area<-sie[seq(8,nrow(newdata),by=12),4]
+jan<-jan[-which(is.na(jan$area)==TRUE),]
+#aug<-aug[-which(is.na(aug$area)==TRUE),]
+jan$RecordDate<-str_sub(jan$RecordDate,1,4)
+aug$RecordDate<-str_sub(aug$RecordDate,1,4)
+aug$RecordDate<-as.numeric(aug$RecordDate)
+jan$RecordDate<-as.numeric(jan$RecordDate)
+```
+
+
+- We select three predictors for regression: year, temperature, and humidity.
+
+- Then we test the collinearity among three predictors. In terms of the VIF valus shown below, the there is no 
+
+obvious collinearity.
+
+```{r,echo=FALSE,message=FALSE}
+library(usdm)
+library(MASS)
+#test Collinearity 
+vif(data.frame(aug$temperature, aug$RecordDate,aug$humidity))
+```
+
+- Use linear regression. The result of linear regression showns that the predictor humidity is not significant.
+
+```{r,echo=FALSE,message=FALSE}
+
+
+fit <- lm(area ~ RecordDate + temperature + humidity, data=aug)
+summary(fit) # show results
+#fit <- lm(area ~ temperature, data=aug)
+#fit <- lm(area ~  temperature + RecordDate, data=aug)
+#humidity not significant
+```
+
+- Use stepwise regression to verify the result, and it exclude the predictor humidity, which is in accordance 
+
+with the linear regression we did before.
+
+```{r,echo=FALSE,results='hide',message=FALSE}
+step <- stepAIC(fit, direction="both")
+```
+
+```{r,echo=FALSE,message=FALSE}
+step$anova # display results
+```
+
+
+The results for other month are similar. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

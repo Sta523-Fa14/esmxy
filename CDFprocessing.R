@@ -32,6 +32,7 @@ dir.create("Cache/CDFfiles")
 urlList=read.table("NetCDF_urlList",stringsAsFactors=FALSE)
 urlList=cbind(urlList,str_extract(urlList[,1],"[0-9]+.SUB.nc"))
 colnames(urlList)=c("URLs","fileNames")
+urlList=urlList[grep("[0-9]{4}09",urlList$fileNames),]
 for(i in 1:nrow(urlList)){
   if(urlList$fileNames[i] %in% list.files("Cache/CDFfiles/")){
     print("Target file already exists, moving to the next file")

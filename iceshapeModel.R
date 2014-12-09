@@ -1,12 +1,15 @@
 library(rgeos)
 library(raster)
 library(rgdal)
+library(prevR)
 
-shape=readOGR(paste0("Cache/Shapefiles/","extent_N_201309_polygon"), "extent_N_201309_polygon")
+load("convertedTempData.rda")
+
+modelData=data.frame(RecordDate=character(),noICE=double(),ICE=double())
+shape=readOGR(paste0("Cache/Shapefiles/","extent_N_","198009","_polygon"), "extent_N_198009_polygon")
 shape1=shape[shape$INDEX==0,]
-plot(shape1)
-segments(-2200000,-2200000,-2200000,2200000)
-segments(1500000,-2500000,1500000,2500000)
-segments(-1500000,-2500000,1500000,-2500000)
-segments(-1500000,2500000,1500000,2500000)
-
+TempData=convertedTempData[grep("198009",convertedTempData$RecordDate),]
+ptsCheck=point.in.SpatialPolygons(TempData$Xcoord,TempData$Ycoord,shape1)
+noICETemps=TempData$Temperature[which(ptsCheck==FALSE)]
+ICETemps=TempData$Temperature[which(ptsCheck==TRUE)]
+meanICETemps

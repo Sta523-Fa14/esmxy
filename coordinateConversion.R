@@ -1,5 +1,3 @@
-library(dplyr)
-
 earthR=6367444.7
 coordCalc=function(lon,lat){
   r=earthR*(90-lat)/180*pi
@@ -10,7 +8,7 @@ coordCalc=function(lon,lat){
     coordx=0-r*cos((90-abs(lon))/180*pi)
     coordy=0-r*sin((90-abs(lon))/180*pi)
   }
-  resultCoord=c(2*coordx,2*coordy)
+  resultCoord=c(coordx,coordy)
   return(resultCoord)
 }
 
@@ -27,7 +25,7 @@ for(i in 1:4896){
   XcoordVec=append(XcoordVec,result[1])
   YcoordVec=append(YcoordVec,result[2])
 }
-finalData$Xcoord=rep(XcoordVec,420)
-finalData$Ycoord=rep(YcoordVec,420)
+finalData$Xcoord=rep(XcoordVec,35)
+finalData$Ycoord=rep(YcoordVec,35)
 convertedTempData=finalData
 save(convertedTempData,file="convertedTempData.rda")

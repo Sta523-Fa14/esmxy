@@ -1,6 +1,13 @@
 ---
 output: html_document
----
+## Introduction
+
+Global warming may lead to redistribution of precipitation, disappearance of glacier and permafrost, and the raise of sea level. This may not only upset the balance of nature, but also endanger humans. Overusing different fossil fuels, excessive felling trees, as well as other human factors would probably cause increase of greenhouse gas in atmosphere. Some scientists do believe that global warming is dangerous and we should take action to reduce it. Others think it is only natural phenomena of a certain period, and no accurate evidence show that the only reason of global warming is human factor, and its long-time effect is negative. 
+
+Glacier is the largest reservoir of fresh water, about 70 percent of fresh water on the earth is stored in glacier. However, recent data suggests that the speed of global glacier melting keeps increase in more and more regions and reach the highest speed since records began. The melting of glacier may have already caused serious influence in difference aspects: with the decrease of glacier, most area, using glacier as water supply, would suffer from shortage of water. Flood hazard caused by the large amounts of melting ice, would results in casualties, and loss of property. Microorganism, buried by the ice cap, would be exposed, and the spread of such microorganism will have potential negative influence to human health.
+
+From the existing data and analysis, we want to know about the long-time influence of the global warming to the change of icecap area. Our project aims at exploring change of ice area and temperature of North Pole, using linear regression models to detect the potential relationship between the ice area and temperature as time goes. Give a prediction of the ice area after few years, and fully illustrate the trends of glacier development in the North Pole.
+
 # 3.Visualization of Raw Data
 
 ## 3.1 Arctic Sea Ice Extent Trends: 1979-2013

@@ -1,9 +1,9 @@
 ---
 output: html_document
 ---
-# Visualization of Raw Data
+# 3.Visualization of Raw Data
 
-## 1) Arctic Sea Ice Extent Trends: 1979-2013
+## 3.1 Arctic Sea Ice Extent Trends: 1979-2013
 
 Based on the monthly Arctic Sea Ice Extent data offered by National Snow and Ice Data Center(NSIDC), we plot
 
@@ -52,7 +52,7 @@ Arctic Sea Ice Extent continued its long-term decline in the 2010 melt season. T
 
 sea ice extent values have declined significantly over the past 35 years with some year to year variation. 
 
-## 2) Map Sea Ice
+## 3.2 Map Sea Ice
 
 Using the sea ice shapefile data from r package `rnoaa`, we draw the plot  the sea ice shape in August from
 
@@ -84,7 +84,7 @@ From the plot, we can find the same trend that sea ice area in Arctic has declin
 35 years with some year to year variation. 
 
 
-# Preliminary Research
+# 4. Preliminary Research
 
 Before studying the shapefile data, we begin by analyzing the area data.
 

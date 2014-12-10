@@ -1,3 +1,5 @@
+source("setup.R")
+
 earthR=6367444.7
 coordCalc=function(lon,lat){
   r=earthR*(90-lat)/180*pi
@@ -12,7 +14,7 @@ coordCalc=function(lon,lat){
   return(resultCoord)
 }
 
-load("finalData.rda")
+load("Output/Rdas/finalData.rda")
 #testLon=c(-170,-150,-130,-90,-20,10,50,85,135)
 #testLat=c(72,77,78,77,71,85,88,90,75)
 #testData=data.frame(Lon=testLon,Lat=testLat)
@@ -28,4 +30,4 @@ for(i in 1:4896){
 finalData$Xcoord=rep(XcoordVec,35)
 finalData$Ycoord=rep(YcoordVec,35)
 convertedTempData=finalData
-save(convertedTempData,file="convertedTempData.rda")
+save(convertedTempData,file="Output/Rdas/convertedTempData.rda")

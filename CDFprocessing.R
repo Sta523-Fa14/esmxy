@@ -1,5 +1,4 @@
-library(RNetCDF)
-library(stringr)
+source("setup.R")
 
 fillMissVar=function(myMatrix){
   naLoc=which(is.na(myMatrix[,,1]),arr.ind=T)
@@ -27,8 +26,7 @@ CDFtoMatrix=function(fileNameCDF){
 }
 
 #download files
-dir.create("Cache")
-dir.create("Cache/CDFfiles")
+
 urlList=read.table("NetCDF_urlList",stringsAsFactors=FALSE)
 urlList=cbind(urlList,str_extract(urlList[,1],"[0-9]+.SUB.nc"))
 colnames(urlList)=c("URLs","fileNames")
@@ -48,4 +46,4 @@ finalData=do.call(rbind,lapply(fileNameList,CDFtoMatrix))
 finalData=as.data.frame(finalData)
 finalData=cbind(rep(dateList,each=4896L),finalData)
 colnames(finalData)[1]="RecordDate"
-save(finalData,file="finalData.rda")
+save(finalData,file="Output/Rdas/finalData.rda")

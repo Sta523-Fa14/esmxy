@@ -1,11 +1,6 @@
-library(dplyr)
-library(rgeos)
-library(alphahull)
-library(igraph)
-library(rgdal)
-library(prevR)
+source("setup.R")
 
-load("convertedTempData.rda")
+load("Output/Rdas/convertedTempData.rda")
 RecordDateList=unique(as.character(convertedTempData$RecordDate))
 
 modelData=data.frame(RecordDate=RecordDateList,noICE_mean=NA,noICE_sd=NA,ICE_mean=NA,ICE_sd=NA)
@@ -85,6 +80,7 @@ polygonGen=function(predict_colnum){
   return(Polygon(lineCoords))
 }
 
+#Output spatial polygon data frame
 polyDataFrameGen=function(input){
   if(grepl("five",tolower(input))){
     colNum=3

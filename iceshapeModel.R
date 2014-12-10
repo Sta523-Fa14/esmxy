@@ -71,14 +71,38 @@ predictPoints$TenYloose=predictTemp$FiveYTemp<=predictData$ThresholdnoICE[2]
 predictPoints$FiftyYtight=predictTemp$FiveYTemp<=predictData$ThresholdICE[3]
 predictPoints$FiftyYloose=predictTemp$FiveYTemp<=predictData$ThresholdnoICE[3]
 
-#plotting
-plotPoints=predictPoints[which(predictPoints$FiveYloose==TRUE),]
-plot(plotPoints$Xcoord,plotPoints$Ycoord)
-t=ashape(plotPoints$Xcoord,plotPoints$Ycoord,150000)
-tg = graph.edgelist(cbind(as.character(t$edges[, "ind1"]), as.character(t$edges[,"ind2"])), directed = FALSE)
-cutg = tg-E(tg)[1]
-ends = names(which(degree(cutg) == 1))
-path = get.shortest.paths(cutg, ends[1], ends[2])[[1]]
-pathX = as.numeric(V(tg)[unlist(path)]$name)
-pathX = c(pathX, pathX[1])
-lines(t$x[pathX, ], lwd = 2)
+#Generateing polygons from the alpha hull
+polygonGen=function(predict_colnum){
+  plotPoints=predictPoints[which(predictPoints[,predict_colnum]==TRUE),]
+  t=ashape(plotPoints$Xcoord,plotPoints$Ycoord,120000)
+  tg = graph.edgelist(cbind(as.character(t$edges[, "ind1"]), as.character(t$edges[,"ind2"])), directed = FALSE)
+  cutg = tg-E(tg)[1]
+  ends = names(which(degree(cutg) == 1))
+  path = get.shortest.paths(cutg, ends[1], ends[2])[[1]]
+  pathX = as.numeric(V(tg)[unlist(path)]$name)
+  pathX = c(pathX, pathX[1])
+  lineCoords=t$x[pathX, ]
+  return(Polygon(lineCoords))
+}
+
+polyDataFrameGen=function(input){
+  if(grepl("five",tolower(input))){
+    colNum=3
+  }else if(grepl("ten",tolower(input))){
+    colNum=5
+  }else{
+    colNum=7
+  }
+  polytight=polygonGen(colNum)
+  polyloose=polygonGen(colNum+1)
+  polystight = Polygons(list(polytight), "1")
+  polysloose = Polygons(list(polyloose), "2")
+  polyCombine=SpatialPolygons(list(polystight,polysloose),1:2)
+  data=data.frame(c(polytight@area,polyloose@area),row.names=c("1","2"))
+  SpDF=SpatialPolygonsDataFrame(polyCombine, data)
+  writeOGR(SpDF, dsn = paste0("Output/Shapefiles/",input,".json"), layer = input, driver = "GeoJSON")
+}
+
+polyDataFrameGen("FiveYears")
+polyDataFrameGen("TenYears")
+polyDataFrameGen("FiftyYears")

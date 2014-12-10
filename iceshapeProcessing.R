@@ -12,6 +12,6 @@ for (i in 1:nrow(fileNameList)){
   }else{
     download.file(fileNameList[i,1],paste0("Cache/Shapefiles/",fileNameList[i,2]))
     unzip(paste0("Cache/Shapefiles/",fileNameList[i,2]),exdir=paste0("Cache/Shapefiles/",folderNameList[i]))
-    Sys.sleep(1)
+    Sys.sleep(3)
   }
 }

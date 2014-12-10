@@ -1,6 +1,7 @@
 library(dplyr)
 library(rgeos)
-library(raster)
+library(alphahull)
+library(igraph)
 library(rgdal)
 library(prevR)
 
@@ -47,3 +48,37 @@ for (i in 1:nrow(predictData)){
 
 #predict temperature for each coordinate point 5, 10 and 50 years after 2013
 sortTempData=arrange(convertedTempData,Xcoord,Ycoord,RecordDate)
+coordSeq=seq(1,nrow(sortTempData),35)
+predictTemp=data.frame(Xcoord=sortTempData$Xcoord[coordSeq],Ycoord=sortTempData$Ycoord[coordSeq],FiveYTemp=NA,TenYTemp=NA,FiftyYTemp=NA)
+
+i=1L
+while(nrow(sortTempData)>=35){
+  TempData=sortTempData[1:35,]
+  LMpointTemp=lm(TempData$Temperature~seq_along(TempData$RecordDate))
+  predictTemp$FiveYTemp[i]=LMpointTemp[1]$coeff[1]+40*LMpointTemp[1]$coeff[2]
+  predictTemp$TenYTemp[i]=LMpointTemp[1]$coeff[1]+45*LMpointTemp[1]$coeff[2]
+  predictTemp$FiftyYTemp[i]=LMpointTemp[1]$coeff[1]+85*LMpointTemp[1]$coeff[2]
+  i=i+1
+  sortTempData=sortTempData[-(1:35),]
+}
+
+#predict whether point to have temperature below predicted ice-cap thresholds
+predictPoints=data.frame(Xcoord=predictTemp$Xcoord,Ycoord=predictTemp$Ycoord,FiveYtight=NA,FiveYloose=NA,TenYtight=NA,TenYloose=NA,FiftyYtight=NA,FiftyYloose=NA)
+predictPoints$FiveYtight=predictTemp$FiveYTemp<=predictData$ThresholdICE[1]
+predictPoints$FiveYloose=predictTemp$FiveYTemp<=predictData$ThresholdnoICE[1]
+predictPoints$TenYtight=predictTemp$FiveYTemp<=predictData$ThresholdICE[2]
+predictPoints$TenYloose=predictTemp$FiveYTemp<=predictData$ThresholdnoICE[2]
+predictPoints$FiftyYtight=predictTemp$FiveYTemp<=predictData$ThresholdICE[3]
+predictPoints$FiftyYloose=predictTemp$FiveYTemp<=predictData$ThresholdnoICE[3]
+
+#plotting
+plotPoints=predictPoints[which(predictPoints$FiveYloose==TRUE),]
+plot(plotPoints$Xcoord,plotPoints$Ycoord)
+t=ashape(plotPoints$Xcoord,plotPoints$Ycoord,150000)
+tg = graph.edgelist(cbind(as.character(t$edges[, "ind1"]), as.character(t$edges[,"ind2"])), directed = FALSE)
+cutg = tg-E(tg)[1]
+ends = names(which(degree(cutg) == 1))
+path = get.shortest.paths(cutg, ends[1], ends[2])[[1]]
+pathX = as.numeric(V(tg)[unlist(path)]$name)
+pathX = c(pathX, pathX[1])
+lines(t$x[pathX, ], lwd = 2)

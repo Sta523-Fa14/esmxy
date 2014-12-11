@@ -90,7 +90,7 @@ predictPoints$FiftyYloose=predictTemp$FiveYTemp<=predictData$ThresholdnoICE[3]
 #Generateing polygons from the alpha hull
 polygonGen=function(predict_colnum){
   plotPoints=predictPoints[which(predictPoints[,predict_colnum]==TRUE),]
-  t=ashape(plotPoints$Xcoord,plotPoints$Ycoord,120000)
+  t=ashape(plotPoints$Xcoord,plotPoints$Ycoord,200000)
   tg = graph.edgelist(cbind(as.character(t$edges[, "ind1"]), as.character(t$edges[,"ind2"])), directed = FALSE)
   cutg = tg-E(tg)[1]
   ends = names(which(degree(cutg) == 1))
@@ -112,14 +112,32 @@ polyDataFrameGen=function(input){
   }
   polytight=polygonGen(colNum)
   polyloose=polygonGen(colNum+1)
-  polystight = Polygons(list(polytight), "1")
-  polysloose = Polygons(list(polyloose), "2")
-  polyCombine=SpatialPolygons(list(polystight,polysloose),1:2)
-  data=data.frame(c(polytight@area,polyloose@area),row.names=c("1","2"))
+  polystight = Polygons(list(polytight), "tight")
+  polysloose = Polygons(list(polyloose), "loose")
+  polyCombine=SpatialPolygons(list(polysloose,polystight),1:2)
+  data=data.frame(c(polyloose@area,polytight@area),row.names=c("loose","tight"))
   SpDF=SpatialPolygonsDataFrame(polyCombine, data)
+  
+  png(paste0("Output/Figures/predictShape_",input,".png"),width=1000,height=800)
+  plot(SpDF,col=c("lightgreen","blue"),main=input)
+  points(predictPoints$Xcoord,predictPoints$Ycoord,pch=".")
+  dev.off()
+  
   writeOGR(SpDF, dsn = paste0("Output/Shapefiles/",input,".json"), layer = input, driver = "GeoJSON")
+  return(SpDF)
 }
+file.remove(paste0("Output/Shapefiles/",list.files("Output/Shapefiles")))
+polyFiveY=polyDataFrameGen("FiveYears")
+polyTenY=polyDataFrameGen("TenYears")
+polyFiftyY=polyDataFrameGen("FiftyYears")
 
-polyDataFrameGen("FiveYears")
-polyDataFrameGen("TenYears")
-polyDataFrameGen("FiftyYears")
+load("Output/Rdas/seaiceArea.rda")
+subsetArea=filter(seaiceArea,mo==9&yr %in% c(1983,2003,2008,2013))
+predictArea=c(polyFiveY@data[[1]][2],polyTenY@data[[1]][2],polyFiftyY@data[[1]][2])
+predictArea=predictArea/1e12
+plotArea=c(subsetArea$ext,predictArea)
+names(plotArea)=c("1983","2003","2008","2013","2018","2023","2063")
+
+png("Output/Figures/iceAreaPrediction.png",width=800,height=400)
+barplot(plotArea,col=c("grey","grey","grey","grey","blue","blue","blue"),ylab="x10^12 m2",main="Ice area predictions with tight threshold")
+dev.off()

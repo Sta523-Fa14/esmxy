@@ -15,6 +15,21 @@ Glacier is the largest reservoir of fresh water, about 70 percent of fresh water
 
 From the existing data and analysis, we want to know about the long-time influence of the global warming to the change of icecap area. Our project aims at exploring change of ice area and temperature of North Pole, using linear regression models to detect the potential relationship between the ice area and temperature as time goes. Give a prediction of the ice area after few years, and fully illustrate the trends of glacier development in the North Pole.
 
+
+# 2. Scraping Data
+
+## 2.1 Temperature
+
+## 2.2 Shapefile of Sea Ice
+
+The shapefile of sea ice is extracted from R package `rnoaa`, which contains data about sea ice.
+
+## 2.3 Sea Ice Area 
+
+
+
+
+
 # 3.Visualization of Raw Data
 
 ## 3.1 Arctic Sea Ice Extent Trends: 1979-2013

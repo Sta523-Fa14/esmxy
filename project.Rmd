@@ -1,9 +1,9 @@
 ---
 title: "Final Project: Prediction of Sea Ice in North Pole"
+author: "Siqi Liu, Yang Su, Eve Oh, Xi Yang, Minjjung Park"
 output: html_document
 ---
 
-Final Project: Prediction of Sea Ice 
 --------------------------------------------------------------------------------------------------------------
 ```{r,echo=FALSE,message=FALSE}
 options(warn=-1)
@@ -13,63 +13,34 @@ options(warn=0)
 
 # 1. Introduction
 
-Global warming refers to the observed century-scale rise in the average temperature of the earth's climate system
-
-. Its effects include redistribution of precipitation, disappearance of glacier and permafrost, and the raise of 
-
-sea level. This may not only upset the balance of nature, but also endanger humans. In this project, we focus on 
-
-its effects on the sea ice in North Pole. 
+Global warming refers to the observed century-scale rise in the average temperature of the earth's climate system. Its effects include redistribution of precipitation, disappearance of glacier and permafrost, and the raise of sea level. This may not only upset the balance of nature, but also endanger humans. In this project, we focus on its effects on the sea ice in North Pole. 
 
 ![](http://www.damocles-eu.org/artman2/uploads/1/EisscholleArk02_p.jpg)
 
-Glacier is the largest reservoir of fresh water, about 70 percent of fresh water on the earth is stored in 
+Glacier is the largest reservoir of fresh water, about 70 percent of fresh water on the earth is stored in glacier. However, recent data suggests that the speed of global glacier melting keeps increase in more and more regions and reach the highest speed since records began. The melting of glacier may have already caused serious influence in difference aspects: with the decrease of glacier, most area, using glacier as water supply, would suffer from shortage of water. Flood hazard caused by the large amounts of melting ice, would results in casualties, and loss of property. Microorganism, buried by the ice cap, would be exposed, and the spread of such microorganism will have potential negative influence to human health.
 
-glacier. However, recent data suggests that the speed of global glacier melting keeps increase in more and more 
-
-regions and reach the highest speed since records began. The melting of glacier may have already caused serious 
-
-influence in difference aspects: with the decrease of glacier, most area, using glacier as water supply, would 
-
-suffer from shortage of water. Flood hazard caused by the large amounts of melting ice, would results in 
-
-casualties, and loss of property. Microorganism, buried by the ice cap, would be exposed, and the spread of such 
-
-microorganism will have potential negative influence to human health.
-
-From the existing data and analysis, we want to know about the long-time influence of the global warming to the 
-
-change of icecap area. Our project aims at exploring change of ice area and temperature of North Pole, using 
-
-linear regression models to detect the potential relationship between the ice area and temperature as time goes. 
-
-Give a prediction of the ice area after few years, and fully illustrate the trends of glacier development in the 
-
-North Pole.
+From the existing data and analysis, we want to know about the long-time influence of the global warming to the change of icecap area. Our project aims at exploring change of ice area and temperature of North Pole, using linear regression models to detect the potential relationship between the ice area and temperature as time goes. Give a prediction of the ice area after few years, and fully illustrate the trends of glacier development in the North Pole.
 
 
 
-# 2. Scraping Data
+# 2. Raw Data Preparation
 
-## 2.1 Temperature
+## 2.1 Temperature/Humidity
+
+In order to assess the corelation between global warming and sea ice areas, we postulated that the north pole local temperature/humidity may be critically associated with ice cap changes. So we first acquired the temperature data urls from NASA which covers the temperature recordings above latitude 70N spanning from 1979 to 2013 on each September (in which we show having the smallest ice area later). The urls are stored in file `NetCDF_urlList`, and are pointed to NetCDF files stored in NASA's database.
+
+We used packages `RNetCDF` to parse the NetCDF files. We discovered that the NetCDF files stores multidimensional temperature/humidity in a 288 longitude/17 latitude/41 altitude 3d matrix. The altitudes are measured in air pressure from 100kPa which is the sea level pressure to 0.01kPa which is representing the high atmosphere temperatures. We decided to subset only the lowest surface temperatures. We noticed that the 100kPa temperature layer contained NA readings, which are presumably a result from terran changes that masked the sea levels. To get more accurate readings on the surface temperatures, we designed "fillMissVar" function in the `CDFprocessing.R` to search for the most adjacent upper layer that has a temperature/humidity reading. The final product for the NetCDF processing is we extracted the temperature/humidity records for the lowest surface in the north pole area of latitude above 70N, and stacked all the recordings from Sep 1979 to Sep 2013.
+
 
 ## 2.2 Shapefile of Sea Ice
 
-The shapefile of sea ice is extracted from R package `rnoaa`, which contains data about sea ice.
+We created `iceshapeProcessing.R` to acquire the north pole ice shape files. The shapefile of sea ice is extracted from R package `rnoaa`, which contains url links of sea ice shapefiles. We extract monthly shapefile for sea ice in North Pole from 1979 to 2013 that is recorded on each September. We downloaded the shape files into the "Cache/Shapefiles/" directory and unzipped the files. The shape files is stored in the conventional ESRI format and can be read into R by `rgdal` package.
 
-We extract monthly shapefile for sea ice in North Pole from 1979 to 2013. 
-
-For example, when extracting shapefiles for August, the process is:
-
-- Get the url which contains the month and pole we are interested
-
-- Use `parallel` techniques to accerlate the downloading process
-
-
+When we analyzed the shape files, however, we noticed that the coordinates for the ice shapes are not encoded in the longitude/latitude format but rather in Cartesian coordinate system. Since the temperature data we acquired features the longitude/latitude coordinate system, we then created `coordinateConversion.R` to convert the coordinates from longitude/latitude coordinates into Cartesian coordinates based on simple geometric transformation.
 
 ## 2.3 Sea Ice Area 
 
-The sea ice area data is obtained from National Snow and Ice Data Center(NSIDC)
+The sea ice area data is obtained from National Snow and Ice Data Center(NSIDC). The original data is stored in an online csv file which contains the north pole sea ice area spanning from 1979 to 2013 and is recorded by each month. `seaiceArea.R` produces a dataframe that contains the area data.
 
 
 
@@ -77,19 +48,12 @@ The sea ice area data is obtained from National Snow and Ice Data Center(NSIDC)
 
 ## 3.1 Arctic Sea Ice Extent Trends: 1979-2013
 
-Based on the monthly arctic sea ice extent data offered by National Snow and Ice Data Center(NSIDC), we plot
-
-the maximum and minimum arctic sea ice extent for each year, with the trend lines added.  
+Based on the monthly arctic sea ice extent data offered by National Snow and Ice Data Center(NSIDC), we plot the maximum and minimum arctic sea ice extent for each year, with the trend lines added.  
 
 ```{r,echo=FALSE,message=FALSE}
-#download the area data
-link_n <- "http://processtrends.com/files/RClimate_NSIDC_sea_ice_extent.csv"
-sie <- read.table(link_n, skip = 1, sep = ",", header = F,
-                  colClasses = rep("numeric", 5),
-                  comment.char = "#", na.strings = c("NA",-9999),
-                  col.names = c("yr_frac", "yr", "mo", "ext", "area"))
-sie <- sie[,c(1,2,3,4)]
-sie <- subset(sie, sie$yr >1978 & sie$yr < 2014)
+#load the area data
+load("Output/Rdas/seaiceArea.rda")
+sie=seaiceArea[,1:4]
 ```
 
 
@@ -115,19 +79,11 @@ text(1979,4.7, "Minimum Monthly SIE",adj=0,font=2)
 abline(glm_min, col="brown")
 ```
 
-From the two plots, we can find out that during the 1979 – 2006 period the maximums and minimums SIE  declined.  The 2007 – 2008 period showed an
-
-increasing trend which resumed its downward slope in 2009 and 2010.
-
-Arctic sea ice extent continued its long-term decline in the 2010 melt season. The annual maximum and minimum
-
-sea ice extent values have declined significantly over the past 35 years with some year to year variation. 
+From the two plots, we can find out that during the 1979 – 2006 period the maximums and minimums SIE  declined.  The 2007 – 2008 period showed an increasing trend which resumed its downward slope in 2009 and 2010. Arctic sea ice extent continued its long-term decline in the 2010 melt season. The annual maximum and minimum sea ice extent values have declined significantly over the past 35 years with some year to year variation. 
 
 ## 3.2 Map Sea Ice
 
-Using the sea ice shapefile data from r package `rnoaa`, we draw the plot of the sea ice shape in September from
-
-1979 to 2013 
+Using the sea ice shapefile data from r package `rnoaa`, we draw the plot of the sea ice shape in September from 1979 to 2013 
 
 ```{r,message=FALSE,echo=FALSE}
 #shapefile
@@ -146,18 +102,14 @@ for(i in c(1,15,35)){
 
 ```
 
-From the plot, we can find the same trend that sea ice area in Arctic has declined significantly over the past 
-
-35 years with some year to year variation. 
+From the plot, we can find the same trend that sea ice area in Arctic has declined significantly over the past 35 years with some year to year variation. 
 
 
 # 4. Preliminary Research
 
 Before studying the shapefile data, we begin by analyzing the area data.
 
-We attempt to do regression analysis for sea ice area in each month. Take the sea ice area in September(which the 
-
-temperature is the highest) as an example. 
+We attempt to do regression analysis for sea ice area in each month. Take the sea ice area in September(which the temperature is the highest) as an example. 
 
 - First, we construct a new data set for sea ice in Spetember from the original data sets using functions in package `dplyr`. The new data set contains variables area, year, temperature, and humidity.
 
@@ -178,9 +130,7 @@ sep$RecordDate<-as.numeric(sep$RecordDate)
 
 - We select three predictors for regression: year, temperature, and humidity.
 
-- Then we test the collinearity among three predictors. In terms of the VIF valus shown below, the there is no 
-
-obvious collinearity(because the values of VIF are smaller than 3).
+- Then we test the collinearity among three predictors. In terms of the VIF valus shown below, the there is no obvious collinearity(because the values of VIF are smaller than 3).
 
 ```{r,echo=FALSE,message=FALSE}
 #test Collinearity 
@@ -196,9 +146,7 @@ summary(fit) # show results
 
 ```
 
-- Use stepwise regression to verify the result, and the result shows that it excludes the predictor humidity, which is in accordance 
-
-with the linear regression we did before.
+- Use stepwise regression to verify the result, and the result shows that it excludes the predictor humidity, which is in accordance with the linear regression we did before.
 
 ```{r,echo=FALSE,results='hide',message=FALSE}
 step <- stepAIC(fit, direction="both")
@@ -209,6 +157,18 @@ step$anova # display results
 ```
 
 # 5. Prediction Model
+
+## 5.1 Matching the temperature data with ice shapes
+
+Because our preliminary analysis pointed out that the north pole ice area changes is correlated with north pole temperature changes. In the ice shape modeling we decided to primarily focus on the temperature and years as prediction parameters. The ice cap shape files are constituted of complex polygons and to simplify, we planned to only consider the largest ice polygon, which has the built-in INDEX of 0. (Indeed, the other ice polygons are more than ten times smaller by area than the largest polygon.)
+
+Next, we overlaid the temperature data derived from `convertedTempData.rda` with the polygons to determine which are the points inside the polygon and which are the points outside. We used `prevR` package to commit this task. So for a given timepoint, for each XY coordinate, we have a tempearture recording, and a logical value of whether this point has ice or not. This allowed us to divid the points into two categories: noICE or ICE. We then analyzed the temperature distribution of the points without ice (red) and with ice (blue). Below are three time points' data.
+
+<div style="text-align:center">
+![Simulation results](Output/Figures/tempHisto_199309.png)
+![Simulation results](Output/Figures/tempHisto_200309.png)
+![Simulation results](Output/Figures/tempHisto_201309.png)
+</div>
 
 
 

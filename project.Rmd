@@ -7,31 +7,40 @@ output: html_document
 
 # 1. Introduction
 
-Global warming refers to the observed century-scale rise in the average temperature of the earth's climate system. Its effects include redistribution of 
+Global warming refers to the observed century-scale rise in the average temperature of the earth's climate system
 
-precipitation, disappearance of glacier and permafrost, and the raise of sea level. This may not only upset the balance of nature, but also endanger 
+. Its effects include redistribution of precipitation, disappearance of glacier and permafrost, and the raise of 
 
-humans. In this project, we focus on its effects on the sea ice in North Pole. 
+sea level. This may not only upset the balance of nature, but also endanger humans. In this project, we focus on 
+
+its effects on the sea ice in North Pole. 
 
 ![](http://www.damocles-eu.org/artman2/uploads/1/EisscholleArk02_p.jpg)
 
-Glacier is the largest reservoir of fresh water, about 70 percent of fresh water on the earth is stored in glacier. However, recent data suggests 
+Glacier is the largest reservoir of fresh water, about 70 percent of fresh water on the earth is stored in 
 
-that the speed of global glacier melting keeps increase in more and more regions and reach the highest speed since records began. The melting of 
+glacier. However, recent data suggests that the speed of global glacier melting keeps increase in more and more 
 
-glacier may have already caused serious influence in difference aspects: with the decrease of glacier, most area, using glacier as water supply, would 
+regions and reach the highest speed since records began. The melting of glacier may have already caused serious 
 
-suffer from shortage of water. Flood hazard caused by the large amounts of melting ice, would results in casualties, and loss of property. 
+influence in difference aspects: with the decrease of glacier, most area, using glacier as water supply, would 
 
-Microorganism, buried by the ice cap, would be exposed, and the spread of such microorganism will have potential negative influence to human health.
+suffer from shortage of water. Flood hazard caused by the large amounts of melting ice, would results in 
 
-From the existing data and analysis, we want to know about the long-time influence of the global warming to the change of icecap area. Our project 
+casualties, and loss of property. Microorganism, buried by the ice cap, would be exposed, and the spread of such 
 
-aims at exploring change of ice area and temperature of North Pole, using linear regression models to detect the potential relationship between the 
+microorganism will have potential negative influence to human health.
 
-ice area and temperature as time goes. Give a prediction of the ice area after few years, and fully illustrate the trends of glacier development in the 
+From the existing data and analysis, we want to know about the long-time influence of the global warming to the 
+
+change of icecap area. Our project aims at exploring change of ice area and temperature of North Pole, using 
+
+linear regression models to detect the potential relationship between the ice area and temperature as time goes. 
+
+Give a prediction of the ice area after few years, and fully illustrate the trends of glacier development in the 
 
 North Pole.
+
 
 
 # 2. Scraping Data

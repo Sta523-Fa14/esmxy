@@ -160,7 +160,7 @@ step$anova # display results
 
 ## 5.1 Matching the temperature data with ice shapes
 
-Because our preliminary analysis pointed out that the north pole ice area changes is correlated with north pole temperature changes. In the ice shape modeling we decided to primarily focus on the temperature and years as prediction parameters. The ice cap shape files are constituted of complex polygons and to simplify, we planned to only consider the largest ice polygon, which has the built-in INDEX of 0. (Indeed, the other ice polygons are more than ten times smaller by area than the largest polygon.)
+Because our preliminary analysis pointed out that the north pole ice area changes is correlated with north pole temperature changes. In the ice shape modeling we decided to primarily focus on the temperature and years as prediction parameters. The ice cap shape files are constituted of complex polygons and to simplify, we planned to only consider the largest ice polygon, which has the built-in INDEX of 0. (Indeed, the other ice polygons are more than ten times smaller by area than the largest polygon.) The shape modelling is performed in `iceshapeModel.R`.
 
 Next, we overlaid the temperature data derived from `convertedTempData.rda` with the polygons to determine which are the points inside the polygon and which are the points outside. We used `prevR` package to commit this task. So for a given timepoint, for each XY coordinate, we have a tempearture recording, and a logical value of whether this point has ice or not. This allowed us to divid the points into two categories: noICE or ICE. We then analyzed the temperature distribution of the points without ice (red) and with ice (blue). Below are three time points' data.
 
@@ -170,15 +170,47 @@ Next, we overlaid the temperature data derived from `convertedTempData.rda` with
 ![Simulation results](Output/Figures/tempHisto_201309.png)
 </div>
 
+These plots suggest that the mean surface temperature of ice area and no ice area is different: the ice area temperatures is generally lower than the no ice area. Although this finding is expected, but this data does indicate that we can arbitorily draw a temperature threshold, and below this threshold we can predict a certain point to have ice; and above that, that point has no ice.
 
+## 5.2 Linear model prediction of ICE-point threhold and Coordinate temperatures
 
+Intriguingly, when we analyzed the mean noICE or ICE temperature changes with time, we found an existing linear relationship.
 
+<div style="text-align:center">
+![Simulation results](Output/Figures/meanTempRegression.png)
+</div>
 
+This data suggest that both the ice forming temperature and the no ice area temperature is accending. This is interesting because it implies that although the global warming effect is promoting the ice melting, but a negative feedback factor may present to increase the ice melting temperature point. This potential mechanism may slow down the ice cap degredation in the future. Also from this plot, we understand that the ICE/noICE threshold for predictions may not be represented by the average of current mean temperature values. In this way, we used linear model to predict the future noICE/ICE  mean temperatures. We assume the temperature distribution follows the Guassian distribution and setup "ThresholdQ=0.6" as the threshold to calculate ICE formaing temperatures. 
+So we defined the 60% upper boundary of ICE distribution as the tight threshold for ice forming point, and we defined 40% lower boundary of noICE distribution as the loose threshold for ice forming point. With this, we generated the threshold temperature table for five, ten and fifty years after Sep 2013.
 
+<div style="text-align:center">
+![Simulation results](Output/Figures/thresholdTable.png)
+</div>
 
+Subsequently, we predicted the temperature for each coordinate point also by linear models based on the previous years' data. However, it should be noted that the linearity of the each coordinate points to year sequence varies and the linear fitting may not be the best method for  coordinate temperature predictions. 
 
+## 5.3 Linear model prediction of ICE-point threhold and Coordinate temperatures
 
+Next, given the predicted temperatures on each coordinate, we mapped a vector of logical values on whether the temperature these points are below or above the predicted noICE/ICE thresholds. If the predicted temperature of a given coordinate is below the chosen threshold, it returns TRUE. The tight criteria is based on the predicted ICE mean, and the loose criteria is based on the predicted noICE mean. Since five years, ten years and fifty years have different ICE threhold values, they are handled separately.
 
+Finally, by ploting all the coordinates with TRUE values, we form a point-based shape. We used package `alphahull` to generate the outline of the shape. Then we adopted a method from [Rpub](http://rpubs.com/geospacedman/alphasimple) that converts alpha shapes into polygons. For each predicted year, we pack the tight-prediction and loose-prediction into a spatialPolygonsDataFrame object, which is plotted below. The blue polygon represents the tight prediction, and the green polygon the loose prediction. The doted lines are latitude lines. Bottom is longitude 0, top is longitude 180.
 
+<div style="text-align:center">
+![Simulation results](Output/Figures/predictShape_FiveYears.png)
+![Simulation results](Output/Figures/predictShape_TenYears.png)
+![Simulation results](Output/Figures/predictShape_FiftyYears.png)
+</div>
 
+When we generate the polygons, the polygon area is also calculated. Below is a bar plot of the predicted area of north pole ice cap, in comparison with previous observation values.
 
+<div style="text-align:center">
+![Simulation results](Output/Figures/iceAreaPrediction.png)
+</div>
+
+From this plot, we see a continues decline of ice cap area in the next five and ten years. But the ice cap area increased a lot on fifty-year prediction. This is likely a result of inaccurate simulation of coordinate temperatures based on the linear model. But it can also be a real phenomenon because of the sea ice's resistence to melt as discussed in previous sections. Interestingly, this ice cap increase pattern is also implied from another online study by [Dikran Marsupial](http://www.skepticalscience.com/2014_Arctic_Sea_Ice_Extent_Prediction.html). The linked image is displayed below.
+
+![](http://skepticalscience.com//pics/ssie_september.png)
+
+# 6. Summary
+
+Overall, we utilized online raw data sources and analyzed the coorelation between north pole surface temperature and sea ice areas. Using time-based statistical models, we predicted the ice shape and area for five years, ten years and fifty years since 2013. The model is still primitive and requires further polishing.

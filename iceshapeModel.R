@@ -20,18 +20,36 @@ for( i in 1:length(RecordDateList)){
   
   noICE_density=density(noICETemps)
   ICE_density=density(ICETemps)
-  
+#plot histogram overlay of temperature distributions between ICE and noICE  
+  if(i %in% c(15,25,35)){
+    png(paste0("Output/Figures/tempHisto_",currentDate,".png"),width=800,height=300)
+    plot(0,xlim=c(250,280),ylim=c(0,0.35),xlab="Temperature(K)",ylab="Density",main=currentDate)
+    lines(noICE_density,col="red")
+    lines(ICE_density,col="blue") 
+    dev.off()
+  }  
 }
+
+
 
 LMnoICE_mean=lm(modelData$noICE_mean~seq_along(modelData$RecordDate))
 LMnoICE_sd=lm(modelData$noICE_sd~seq_along(modelData$RecordDate))
 LMICE_mean=lm(modelData$ICE_mean~seq_along(modelData$RecordDate))
 LMICE_sd=lm(modelData$ICE_sd~seq_along(modelData$RecordDate))
 
+#Plot mean temperature regression with time
+png("Output/Figures/meanTempRegression.png",width=500,height=300)
+plot(0,xlim=c(0,36),ylim=c(262,272.5),xlab="Years",ylab="MeanTemp",main="mean ICE/noICE temperature change with time")
+points(seq_along(modelData$RecordDate),modelData$noICE_mean,col="red")
+abline(LMnoICE_mean,col="red")
+points(seq_along(modelData$RecordDate),modelData$ICE_mean,col="blue")
+abline(LMICE_mean,col="blue")
+dev.off()
+
 #predict mean and sd values 5, 10 and 50 years after 2013 (201809,202309,206309)
 predictData=data.frame(PredictDate=c("201809","202309","206309"),noICE_mean=NA,noICE_sd=NA,ICE_mean=NA,ICE_sd=NA,ThresholdnoICE=NA,ThresholdICE=NA,stringsAsFactors=FALSE)
 for (i in 1:nrow(predictData)){
-  ThresholdQ=0.7
+  ThresholdQ=0.6
   yearSeq=(as.numeric(predictData$PredictDate[i])-197809)/100
   predictData$noICE_mean[i]=LMnoICE_mean[1]$coeff[1]+yearSeq*LMnoICE_mean[1]$coeff[2]
   predictData$noICE_sd[i]=LMnoICE_sd[1]$coeff[1]+yearSeq*LMnoICE_sd[1]$coeff[2]
@@ -40,6 +58,9 @@ for (i in 1:nrow(predictData)){
   predictData$ThresholdnoICE[i]=qnorm(1-ThresholdQ,predictData$noICE_mean[i],predictData$noICE_sd[i])
   predictData$ThresholdICE[i]=qnorm(ThresholdQ,predictData$ICE_mean[i],predictData$ICE_sd[i])
 }
+png("Output/Figures/thresholdTable.png",width=800,height=200)
+grid.table(predictData)
+dev.off()
 
 #predict temperature for each coordinate point 5, 10 and 50 years after 2013
 sortTempData=arrange(convertedTempData,Xcoord,Ycoord,RecordDate)

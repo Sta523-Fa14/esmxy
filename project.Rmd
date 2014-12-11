@@ -24,7 +24,7 @@ From the existing data and analysis, we want to know about the long-time influen
 
 The shapefile of sea ice is extracted from R package `rnoaa`, which contains data about sea ice.
 
-We extract monthly shapefile for sea ice in North pole from 1979 to 2013. 
+We extract monthly shapefile for sea ice in North Pole from 1979 to 2013. 
 
 For example, when extracting shapefiles for August, the process is:
 

@@ -3,7 +3,7 @@ toLoad=c('dplyr','stringr','rgdal', 'rgeos','rnoaa','RNetCDF',
 
 for(lib in toLoad){
   if(!(lib %in% installed.packages()[,1])){ 
-    install.packages(lib, repos='http://cran.rstudio.com/') }
+    install.packages(lib, repos="http://cran.us.r-project.org") }
   library(lib, character.only=TRUE)
 }
 

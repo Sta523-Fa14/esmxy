@@ -3,7 +3,11 @@ output: html_document
 
 Final Project: Prediction of Sea Ice 
 --------------------------------------------------------------------------------------------------------------
-
+```{r,echo=FALSE,message=FALSE}
+options(warn=-1)
+source("setup.R")
+options(warn=0)
+```
 
 # 1. Introduction
 
@@ -36,7 +40,6 @@ sie <- subset(sie, sie$yr >1978 & sie$yr < 2014)
 
 
 ```{r,echo=FALSE,message=FALSE}
-library(nlme)
 ann_max <- tapply(sie$ext, sie$yr, max, na.rm=T)
 ann_min <- tapply(sie$ext, sie$yr, min, na.rm=T)
 ann_df <- data.frame(seq(1979,2013,1), ann_max, ann_min)
@@ -68,29 +71,25 @@ sea ice extent values have declined significantly over the past 35 years with so
 
 ## 3.2 Map Sea Ice
 
-Using the sea ice shapefile data from r package `rnoaa`, we draw the plot of the sea ice shape in August from
+Using the sea ice shapefile data from r package `rnoaa`, we draw the plot of the sea ice shape in September from
 
 1979 to 2013 
 
 ```{r,message=FALSE,echo=FALSE}
 #shapefile
-library(rnoaa)
-library(scales)
-library(ggplot2)
-library(doMC)
-library(plyr)
-urls <- seaiceeurls(mo='Aug', pole='N')
-urls<-urls[1:35]
-registerDoMC(cores=4)
-out <- llply(urls, seaice, .parallel=TRUE)
-#out1<-out[seq(1,35,by=2)]
-#names(out1) <- seq(1979,2013,by=2)
-names(out) <- seq(1979,2013,1)
-df <- ldply(out)
-ggplot(df, aes(long, lat, group=group)) +
+fileNames=list.files("Cache/Shapefiles")
+yearList=sort(unique(str_extract(fileNames,"[0-9]{4}09")))
+
+for(i in c(1,15,35)){
+  currentYear=yearList[i]
+  df=readOGR(paste0("Cache/Shapefiles/extent_N_",currentYear,"_polygon"),paste0("extent_N_",currentYear,"_polygon"))
+  
+  newplot=ggplot(df, aes(long, lat, group=group)) +
   geom_polygon(fill="steelblue") +
-  theme_ice() +
-  facet_wrap(~ .id)
+  theme_ice()+ggtitle(currentYear)
+  plot(newplot)
+}
+
 ```
 
 From the plot, we can find the same trend that sea ice area in Arctic has declined significantly over the past 
@@ -102,30 +101,24 @@ From the plot, we can find the same trend that sea ice area in Arctic has declin
 
 Before studying the shapefile data, we begin by analyzing the area data.
 
-We attempt to do regression analysis for sea ice area in each month. Take the sea ice area in August(which the 
+We attempt to do regression analysis for sea ice area in each month. Take the sea ice area in September(which the 
 
 temperature is the highest) as an example. 
 
-- First, we construct a new data set for sea ice in August from the original data sets using functions in 
+- First, we construct a new data set for sea ice in Spetember from the original data sets using functions in 
 
 package `dplyr`. The new data set contains variables area, year, temperature, and humidity.
 
 ```{r,echo=FALSE,message=FALSE}
-#Construct data sets for january and august sea ice
-#setwd("~/R/Team7/final project")
-load(file="finalData.rda")
-library(dplyr)
-library(stringr)
+load(file="Output/Rdas/finalData.rda")
 newdata<-finalData %>% 
 group_by(RecordDate) %>%
 summarize(n = n(),temperature=mean(Temperature), humidity=mean(RelativeHumidity))
 
-
-
-aug<-newdata[seq(8,nrow(newdata),by=12),]
-aug$area<-sie[seq(8,nrow(newdata),by=12),4]
-aug$RecordDate<-str_sub(aug$RecordDate,1,4)
-aug$RecordDate<-as.numeric(aug$RecordDate)
+sep<-newdata
+sep$area<-sie[seq(9,nrow(sie),by=12),4]
+sep$RecordDate<-str_sub(sep$RecordDate,1,4)
+sep$RecordDate<-as.numeric(sep$RecordDate)
 
 ```
 
@@ -137,18 +130,15 @@ aug$RecordDate<-as.numeric(aug$RecordDate)
 obvious collinearity(because the values of VIF are smaller than 3).
 
 ```{r,echo=FALSE,message=FALSE}
-library(usdm)
-library(MASS)
 #test Collinearity 
-vif(data.frame(aug$temperature, aug$RecordDate,aug$humidity))
+vif(data.frame(sep$temperature, sep$RecordDate,sep$humidity))
 ```
 
 - Use linear regression. The result of linear regression showns that the predictor humidity is not significant.
 
 ```{r,echo=FALSE,message=FALSE}
 
-
-fit <- lm(area ~ RecordDate + temperature + humidity, data=aug)
+fit <- lm(area ~ RecordDate + temperature + humidity, data=sep)
 summary(fit) # show results
 #fit <- lm(area ~ temperature, data=aug)
 #fit <- lm(area ~  temperature + RecordDate, data=aug)
@@ -168,7 +158,6 @@ step$anova # display results
 ```
 
 
-The results for other month are similar. 
 
 
 

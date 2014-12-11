@@ -93,7 +93,7 @@ sea ice extent values have declined significantly over the past 35 years with so
 
 ## 3.2 Map Sea Ice
 
-Using the sea ice shapefile data from r package `rnoaa`, we draw the plot of the sea ice shape in August from
+Using the sea ice shapefile data from r package `rnoaa`, we draw the plot of the sea ice shape in September from
 
 1979 to 2013 
 
@@ -104,7 +104,7 @@ library(scales)
 library(ggplot2)
 library(doMC)
 library(plyr)
-urls <- seaiceeurls(mo='Aug', pole='N')
+urls <- seaiceeurls(mo='Sep', pole='N')
 urls<-urls[1:35]
 registerDoMC(cores=4)
 out <- llply(urls, seaice, .parallel=TRUE)
@@ -127,11 +127,11 @@ From the plot, we can find the same trend that sea ice area in Arctic has declin
 
 Before studying the shapefile data, we begin by analyzing the area data.
 
-We attempt to do regression analysis for sea ice area in each month. Take the sea ice area in August(which the 
+We attempt to do regression analysis for sea ice area in each month. Take the sea ice area in September(which the 
 
 temperature is the highest) as an example. 
 
-- First, we construct a new data set for sea ice in August from the original data sets using functions in 
+- First, we construct a new data set for sea ice in September from the original data sets using functions in 
 
 package `dplyr`. The new data set contains variables area, year, temperature, and humidity.
 
@@ -144,9 +144,10 @@ library(stringr)
 newdata<-finalData %>% 
 group_by(RecordDate) %>%
 summarize(n = n(),temperature=mean(Temperature), humidity=mean(RelativeHumidity))
-
-
-
+sep<-newdata[seq(9,nrow(newdata),by=12),]
+sep$area<-sie[seq(9,nrow(newdata),by=12),4]
+sep$RecordDate<-str_sub(sep$RecordDate,1,4)
+sep$RecordDate<-as.numeric(sep$RecordDate)
 aug<-newdata[seq(8,nrow(newdata),by=12),]
 aug$area<-sie[seq(8,nrow(newdata),by=12),4]
 aug$RecordDate<-str_sub(aug$RecordDate,1,4)
@@ -165,7 +166,7 @@ obvious collinearity(because the values of VIF are smaller than 3).
 library(usdm)
 library(MASS)
 #test Collinearity 
-vif(data.frame(aug$temperature, aug$RecordDate,aug$humidity))
+vif(data.frame(sep$temperature, sep$RecordDate,sep$humidity))
 ```
 
 - Use linear regression. The result of linear regression showns that the predictor humidity is not significant.
@@ -173,8 +174,9 @@ vif(data.frame(aug$temperature, aug$RecordDate,aug$humidity))
 ```{r,echo=FALSE,message=FALSE}
 
 
-fit <- lm(area ~ RecordDate + temperature + humidity, data=aug)
+fit <- lm(area ~ RecordDate + temperature + humidity, data=sep)
 summary(fit) # show results
+fit <- lm(area ~ RecordDate + temperature + humidity, data=aug)
 #fit <- lm(area ~ temperature, data=aug)
 #fit <- lm(area ~  temperature + RecordDate, data=aug)
 #humidity not significant

@@ -1,5 +1,7 @@
 ---
+title: "Final Project: Prediction of Sea Ice in North Pole"
 output: html_document
+---
 
 Final Project: Prediction of Sea Ice 
 --------------------------------------------------------------------------------------------------------------
@@ -11,13 +13,65 @@ options(warn=0)
 
 # 1. Introduction
 
-Global warming may lead to redistribution of precipitation, disappearance of glacier and permafrost, and the raise of sea level. This may not only upset the balance of nature, but also endanger humans. Overusing different fossil fuels, excessive felling trees, as well as other human factors would probably cause increase of greenhouse gas in atmosphere. Some scientists do believe that global warming is dangerous and we should take action to reduce it. Others think it is only natural phenomena of a certain period, and no accurate evidence show that the only reason of global warming is human factor, and its long-time effect is negative. 
+Global warming refers to the observed century-scale rise in the average temperature of the earth's climate system
+
+. Its effects include redistribution of precipitation, disappearance of glacier and permafrost, and the raise of 
+
+sea level. This may not only upset the balance of nature, but also endanger humans. In this project, we focus on 
+
+its effects on the sea ice in North Pole. 
 
 ![](http://www.damocles-eu.org/artman2/uploads/1/EisscholleArk02_p.jpg)
 
-Glacier is the largest reservoir of fresh water, about 70 percent of fresh water on the earth is stored in glacier. However, recent data suggests that the speed of global glacier melting keeps increase in more and more regions and reach the highest speed since records began. The melting of glacier may have already caused serious influence in difference aspects: with the decrease of glacier, most area, using glacier as water supply, would suffer from shortage of water. Flood hazard caused by the large amounts of melting ice, would results in casualties, and loss of property. Microorganism, buried by the ice cap, would be exposed, and the spread of such microorganism will have potential negative influence to human health.
+Glacier is the largest reservoir of fresh water, about 70 percent of fresh water on the earth is stored in 
 
-From the existing data and analysis, we want to know about the long-time influence of the global warming to the change of icecap area. Our project aims at exploring change of ice area and temperature of North Pole, using linear regression models to detect the potential relationship between the ice area and temperature as time goes. Give a prediction of the ice area after few years, and fully illustrate the trends of glacier development in the North Pole.
+glacier. However, recent data suggests that the speed of global glacier melting keeps increase in more and more 
+
+regions and reach the highest speed since records began. The melting of glacier may have already caused serious 
+
+influence in difference aspects: with the decrease of glacier, most area, using glacier as water supply, would 
+
+suffer from shortage of water. Flood hazard caused by the large amounts of melting ice, would results in 
+
+casualties, and loss of property. Microorganism, buried by the ice cap, would be exposed, and the spread of such 
+
+microorganism will have potential negative influence to human health.
+
+From the existing data and analysis, we want to know about the long-time influence of the global warming to the 
+
+change of icecap area. Our project aims at exploring change of ice area and temperature of North Pole, using 
+
+linear regression models to detect the potential relationship between the ice area and temperature as time goes. 
+
+Give a prediction of the ice area after few years, and fully illustrate the trends of glacier development in the 
+
+North Pole.
+
+
+
+# 2. Scraping Data
+
+## 2.1 Temperature
+
+## 2.2 Shapefile of Sea Ice
+
+The shapefile of sea ice is extracted from R package `rnoaa`, which contains data about sea ice.
+
+We extract monthly shapefile for sea ice in North Pole from 1979 to 2013. 
+
+For example, when extracting shapefiles for August, the process is:
+
+- Get the url which contains the month and pole we are interested
+
+- Use `parallel` techniques to accerlate the downloading process
+
+
+
+## 2.3 Sea Ice Area 
+
+The sea ice area data is obtained from National Snow and Ice Data Center(NSIDC)
+
+
 
 # 3.Visualization of Raw Data
 
@@ -77,13 +131,13 @@ Using the sea ice shapefile data from r package `rnoaa`, we draw the plot of the
 
 ```{r,message=FALSE,echo=FALSE}
 #shapefile
+
 fileNames=list.files("Cache/Shapefiles")
 yearList=sort(unique(str_extract(fileNames,"[0-9]{4}09")))
 
 for(i in c(1,15,35)){
   currentYear=yearList[i]
   df=readOGR(paste0("Cache/Shapefiles/extent_N_",currentYear,"_polygon"),paste0("extent_N_",currentYear,"_polygon"))
-  
   newplot=ggplot(df, aes(long, lat, group=group)) +
   geom_polygon(fill="steelblue") +
   theme_ice()+ggtitle(currentYear)
@@ -105,9 +159,7 @@ We attempt to do regression analysis for sea ice area in each month. Take the se
 
 temperature is the highest) as an example. 
 
-- First, we construct a new data set for sea ice in Spetember from the original data sets using functions in 
-
-package `dplyr`. The new data set contains variables area, year, temperature, and humidity.
+- First, we construct a new data set for sea ice in Spetember from the original data sets using functions in package `dplyr`. The new data set contains variables area, year, temperature, and humidity.
 
 ```{r,echo=FALSE,message=FALSE}
 load(file="Output/Rdas/finalData.rda")
@@ -119,6 +171,7 @@ sep<-newdata
 sep$area<-sie[seq(9,nrow(sie),by=12),4]
 sep$RecordDate<-str_sub(sep$RecordDate,1,4)
 sep$RecordDate<-as.numeric(sep$RecordDate)
+
 
 ```
 
@@ -140,9 +193,7 @@ vif(data.frame(sep$temperature, sep$RecordDate,sep$humidity))
 
 fit <- lm(area ~ RecordDate + temperature + humidity, data=sep)
 summary(fit) # show results
-#fit <- lm(area ~ temperature, data=aug)
-#fit <- lm(area ~  temperature + RecordDate, data=aug)
-#humidity not significant
+
 ```
 
 - Use stepwise regression to verify the result, and the result shows that it excludes the predictor humidity, which is in accordance 
@@ -157,11 +208,7 @@ step <- stepAIC(fit, direction="both")
 step$anova # display results
 ```
 
-
-
-
-
-
+# 5. Prediction Model
 
 
 

@@ -119,8 +119,8 @@ newdata<-finalData %>%
 group_by(RecordDate) %>%
 summarize(n = n(),temperature=mean(Temperature), humidity=mean(RelativeHumidity))
 
-sep<-newdata
-sep$area<-sie[seq(9,nrow(sie),by=12),4]
+sep<-newdata[seq(8,nrow(newdata),by=12),]
+sep$area<-sie[seq(8,nrow(newdata),by=12),4]
 sep$RecordDate<-str_sub(sep$RecordDate,1,4)
 sep$RecordDate<-as.numeric(sep$RecordDate)
 

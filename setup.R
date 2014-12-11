@@ -1,5 +1,5 @@
 toLoad=c('dplyr','stringr','rgdal', 'rgeos','rnoaa','RNetCDF', 
-         'ggplot2','alphahull','igraph','prevR')
+         'ggplot2','alphahull','igraph','prevR','gridExtra')
 
 for(lib in toLoad){
   if(!(lib %in% installed.packages()[,1])){ 

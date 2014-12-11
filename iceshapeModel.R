@@ -126,7 +126,7 @@ polyDataFrameGen=function(input){
   writeOGR(SpDF, dsn = paste0("Output/Shapefiles/",input,".json"), layer = input, driver = "GeoJSON")
   return(SpDF)
 }
-file.remove(paste0("Output/Shapefiles/",list.files("Output/Shapefiles")))
+
 polyFiveY=polyDataFrameGen("FiveYears")
 polyTenY=polyDataFrameGen("TenYears")
 polyFiftyY=polyDataFrameGen("FiftyYears")

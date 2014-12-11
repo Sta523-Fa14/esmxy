@@ -119,7 +119,7 @@ polyDataFrameGen=function(input){
   SpDF=SpatialPolygonsDataFrame(polyCombine, data)
   
   png(paste0("Output/Figures/predictShape_",input,".png"),width=1000,height=800)
-  plot(SpDF,col=c("lightgreen","blue"),main=input)
+  plot(SpDF,col=c("lightgreen","blue"),main=input,xlim=c(-1500000,1500000),ylim=c(-2000000,1500000))
   points(predictPoints$Xcoord,predictPoints$Ycoord,pch=".")
   dev.off()
   

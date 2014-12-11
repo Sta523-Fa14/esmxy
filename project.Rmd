@@ -19,7 +19,7 @@ From the existing data and analysis, we want to know about the long-time influen
 
 ## 3.1 Arctic Sea Ice Extent Trends: 1979-2013
 
-Based on the monthly Arctic Sea Ice Extent data offered by National Snow and Ice Data Center(NSIDC), we plot
+Based on the monthly arctic sea ice extent data offered by National Snow and Ice Data Center(NSIDC), we plot
 
 the maximum and minimum arctic sea ice extent for each year, with the trend lines added.  
 
@@ -58,17 +58,17 @@ text(1979,4.7, "Minimum Monthly SIE",adj=0,font=2)
 abline(glm_min, col="brown")
 ```
 
-During the 1979 – 2006 period the maximums and minimums SIE  declined.  The 2007 – 2008 period showed an
+From the two plots, we can find out that during the 1979 – 2006 period the maximums and minimums SIE  declined.  The 2007 – 2008 period showed an
 
 increasing trend which resumed its downward slope in 2009 and 2010.
 
-Arctic Sea Ice Extent continued its long-term decline in the 2010 melt season. The annual maximum and minimum
+Arctic sea ice extent continued its long-term decline in the 2010 melt season. The annual maximum and minimum
 
 sea ice extent values have declined significantly over the past 35 years with some year to year variation. 
 
 ## 3.2 Map Sea Ice
 
-Using the sea ice shapefile data from r package `rnoaa`, we draw the plot  the sea ice shape in August from
+Using the sea ice shapefile data from r package `rnoaa`, we draw the plot of the sea ice shape in August from
 
 1979 to 2013 
 
@@ -121,16 +121,12 @@ group_by(RecordDate) %>%
 summarize(n = n(),temperature=mean(Temperature), humidity=mean(RelativeHumidity))
 
 
-jan<-newdata[seq(1,nrow(newdata),by=12),]
+
 aug<-newdata[seq(8,nrow(newdata),by=12),]
-jan$area<-sie[seq(1,nrow(newdata),by=12),4]
 aug$area<-sie[seq(8,nrow(newdata),by=12),4]
-jan<-jan[-which(is.na(jan$area)==TRUE),]
-#aug<-aug[-which(is.na(aug$area)==TRUE),]
-jan$RecordDate<-str_sub(jan$RecordDate,1,4)
 aug$RecordDate<-str_sub(aug$RecordDate,1,4)
 aug$RecordDate<-as.numeric(aug$RecordDate)
-jan$RecordDate<-as.numeric(jan$RecordDate)
+
 ```
 
 
@@ -138,7 +134,7 @@ jan$RecordDate<-as.numeric(jan$RecordDate)
 
 - Then we test the collinearity among three predictors. In terms of the VIF valus shown below, the there is no 
 
-obvious collinearity.
+obvious collinearity(because the values of VIF are smaller than 3).
 
 ```{r,echo=FALSE,message=FALSE}
 library(usdm)
@@ -159,7 +155,7 @@ summary(fit) # show results
 #humidity not significant
 ```
 
-- Use stepwise regression to verify the result, and it exclude the predictor humidity, which is in accordance 
+- Use stepwise regression to verify the result, and the result shows that it excludes the predictor humidity, which is in accordance 
 
 with the linear regression we did before.
 

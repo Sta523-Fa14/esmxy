@@ -7,7 +7,7 @@ Final Project: Prediction of Sea Ice in North Pole
 
 # 1. Introduction
 
-Global warming may lead to redistribution of precipitation, disappearance of glacier and permafrost, and the raise of sea level. This may not only upset the balance of nature, but also endanger humans. Overusing different fossil fuels, excessive felling trees, as well as other human factors would probably cause increase of greenhouse gas in atmosphere. Some scientists do believe that global warming is dangerous and we should take action to reduce it. Others think it is only natural phenomena of a certain period, and no accurate evidence show that the only reason of global warming is human factor, and its long-time effect is negative. 
+Global warming refers to the observed century-scale rise in the average temperature of the earth's climate system. Its effects include redistribution of precipitation, disappearance of glacier and permafrost, and the raise of sea level. This may not only upset the balance of nature, but also endanger humans. In this project, we focus on its effects on the sea ice in North Pole. 
 
 ![](http://www.damocles-eu.org/artman2/uploads/1/EisscholleArk02_p.jpg)
 
